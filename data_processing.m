@@ -14,8 +14,8 @@ for mov_dir = 1:size(data,2)
         features = data_struc.spikes;
         targets =  data_struc.handPos;
         trial_n = trial_n + 1;
-        features = features(:,300:end);
-        targets = targets(:,300:end);
+        features = features(:,180:end);
+        targets = targets(:,180:end);
         for n_bin = 1:floor(((size(targets,2))/bin_l)) 
             features_b = features(:,(n_bin-1)*bin_l + 1:n_bin*bin_l);
             targets_b = targets(:,(n_bin-1)*bin_l + 1:n_bin*bin_l);
@@ -30,8 +30,8 @@ for mov_dir = 1:size(data,2)
     end
 end
 
-csvwrite('monkey_features.csv', features_all);
-csvwrite('monkey_targets.csv', targets_all);
+csvwrite('monkey_features_300.csv', features_all);
+csvwrite('monkey_targets_300.csv', targets_all);
 %% classification data
 clear, clc
 data = load('monkeydata_training.mat');

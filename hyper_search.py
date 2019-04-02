@@ -29,8 +29,7 @@ valid_loader = DataLoader(valid, batch_size=128, shuffle=True, num_workers=4)
 
 net = NeuralNetRegressor(
     Network,
-    optimizer=torch.optim.SGD,
-    optimizer__momentum=0.95,
+    optimizer=torch.optim.Adam,
     # iterator_train = train_loader,
     # iterator_valid = valid_loader,
     module__size_layer = 512,
@@ -48,7 +47,7 @@ params = {
     'module__p': [0.1,0.3,0.5]
 }
 
-gs = GridSearchCV(net, params, refit=False, cv=5,scoring='neg_mean_squared_error')
-print(np.float32(data_targets))
+gs = GridSearchCV(net, params, refit=False, cv=3,scoring='neg_mean_squared_error')
+print(np.min(np.float32(data_features)))
 gs.fit(np.float32(data_features),np.float32(data_targets))
 print(gs.best_score_, gs.best_params_)
