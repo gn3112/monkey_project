@@ -1,8 +1,8 @@
 function  [parameters]= positionEstimatorTraining(train_data)
 [X,Y,mean_X,std_X] = PreProcessing(train_data);
 X_size = size(X,2);
-[param,W,B,Ad] = initialization(3,[400 400 2],X_size,1e-3,...
-    1e-4,0.12,40,10,128); %(Number_of_layer,Neuron_layer,X_size,Learning_rate,...
+[param,W,B,Ad] = initialization(3,[100 100 2],X_size,2e-2,...
+    1e-4,0.12,40,8,128); %(Number_of_layer,Neuron_layer,X_size,Learning_rate,...
 %Regularization,Std_weight,patience,epoch,batchsize) (3,[60 60 5],X_size,1e-3,...
 %1e-3,0.12,40,38,100)
 
@@ -20,33 +20,41 @@ parameters.std_X = std_X;
         %an equal number of samples for each class. In this function the data is
         %split in 3 sets (training,validation,testing). Additionnaly the data is
         %normalized according to the training parameters.
-        bin_l = 20;
-        targets_all = [];
-        features_all = [];
-        trial_n = 0;
-        data = train_data;
-        for mov_dir = 1:size(data,2)
+        
+%         bin_l = 20;
+%         targets_all = [];
+%         features_all = [];
+%         trial_n = 0;
+%         data = train_data;
+%         for mov_dir = 1:size(data,2)
+% 
+%             for trial = 1:size(data,1)
+%                 data_struc = data(trial,mov_dir);
+%                 features = data_struc.spikes;
+%                 targets =  data_struc.handPos;
+%                 trial_n = trial_n + 1;
+%                 features = features(:,1:end);
+%                 targets = targets(:,1:end);
+%                 for n_bin = 1:floor(((size(targets,2))/bin_l)) 
+%                     features_b = features(:,(n_bin-1)*bin_l + 1:n_bin*bin_l);
+%                     targets_b = targets(:,(n_bin-1)*bin_l + 1:n_bin*bin_l);
+%                     features_b = sum(features_b,2);
+%                     targets_b = mean(targets_b,2);
+% %                     targets_b = cat(2,targets_b',[mov_dir,trial_n]);
+%                     features_all = cat(1,features_all,features_b'); % 8 x trial x n_bin
+%                     targets_all = cat(1,targets_all,targets_b');            
+%                 end 
+%             end
+%         end
+                
+%         targets_all = targets_all(:,1:2);
+%         numDatapnts = size(features_all,1); %Total number of samples used for training/validation/testing
+        
+        
+        [X, Y] = transform_training_data(train_data);
 
-            for trial = 1:size(data,1)
-                data_struc = data(trial,mov_dir);
-                features = data_struc.spikes;
-                targets =  data_struc.handPos;
-                trial_n = trial_n + 1;
-                features = features(:,1:end);
-                targets = targets(:,1:end);
-                for n_bin = 1:floor(((size(targets,2))/bin_l)) 
-                    features_b = features(:,(n_bin-1)*bin_l + 1:n_bin*bin_l);
-                    targets_b = targets(:,(n_bin-1)*bin_l + 1:n_bin*bin_l);
-                    features_b = sum(features_b,2);
-                    targets_b = mean(targets_b,2);
-%                     targets_b = cat(2,targets_b',[mov_dir,trial_n]);
-                    features_all = cat(1,features_all,features_b'); % 8 x trial x n_bin
-                    targets_all = cat(1,targets_all,targets_b');            
-                end 
-            end
-        end
-        targets_all = targets_all(:,1:2);
-        numDatapnts = size(features_all,1); %Total number of samples used for training/validation/testing
+        Y = Y(:,1:2);
+        numDatapnts = size(Y,1);
         
         s = RandStream('mt19937ar','Seed',1); %Fix a seed
         RandStream.setGlobalStream(s)
@@ -55,8 +63,8 @@ parameters.std_X = std_X;
         setsData_1 = elems;
         
         %Training/Validation data to be split
-        X = features_all(setsData_1,:);
-        Y = targets_all(setsData_1,:);
+        X = X(setsData_1,:);
+        Y = Y(setsData_1,:);
         
         %Calculate mean and standard deviation to normalize the data
         mean_X = mean(X,1);
@@ -158,7 +166,6 @@ parameters.std_X = std_X;
         W_all = cellfun(@(x)x.^2,W_all,'UniformOutput',false); %square all elements of each weight matrix
         W_all = sum(cellfun(@(x) sum(x(:)),W_all)); %sum all elements of each weight matrix
         loss = mean((A(a)-Y).^2,1) + param.reg*0.5*W_all;
-        disp(loss)
     end
 
 

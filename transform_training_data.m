@@ -50,9 +50,9 @@ function [X, Y]  = transform_training_data(trainingData)
                 binned_Y{trials, movement}{1, bin} =  [binned_Y{trials, movement}{1, bin}(1,end);binned_Y{trials, movement}{1, bin}(2,end);binned_Y{trials, movement}{1, bin}(2,end)];
                 % Then calculating change in position:
                 if bin == 1
-                    binned_dY{trials, movement}{1, bin} = 0*binned_Y{trials, movement}{1, bin};
+                    binned_dY{trials, movement}{1, bin} = binned_Y{trials, movement}{1, bin};
                 else
-                    binned_dY{trials, movement}{1, bin} =  binned_Y{trials, movement}{1, bin} - binned_Y{trials, movement}{1, bin-1};                
+                    binned_dY{trials, movement}{1, bin} =  binned_Y{trials, movement}{1, bin}; %- binned_Y{trials, movement}{1, bin-1};                
                 end          
             end
 
