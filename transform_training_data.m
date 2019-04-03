@@ -52,7 +52,7 @@ function [X, Y]  = transform_training_data(trainingData)
                 if bin == 1
                     binned_dY{trials, movement}{1, bin} = binned_Y{trials, movement}{1, bin};
                 else
-                    binned_dY{trials, movement}{1, bin} =  binned_Y{trials, movement}{1, bin}; %- binned_Y{trials, movement}{1, bin-1};                
+                    binned_dY{trials, movement}{1, bin} =  binned_Y{trials, movement}{1, bin} - binned_Y{trials, movement}{1, bin-1};                
                 end          
             end
 

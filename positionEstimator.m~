@@ -23,6 +23,7 @@ function [decodedPosX, decodedPosY] = positionEstimator(input, parameters)
     %function to calculate error between input and label for given weight and
     %bias. Returns the error between predicted label and true label.
     X = input;
+    X = mean(X,2);
 
     W = parameters.W;
     B = parameters.B;
@@ -35,10 +36,12 @@ function [decodedPosX, decodedPosY] = positionEstimator(input, parameters)
 
         Z = X * W(w) + B(b); % X = a where a0 is the training set
         a_to_be = Z;
+        disp(Z)
         a_to_be(a_to_be<=0 ) = 0;
         A = a_to_be;
 
         X = A; %for next iteration
+        disp(X)
     end
 
     %Output layer
