@@ -11,10 +11,10 @@ ix = randperm(length(trial));
 % addpath(teamName);
 
 % Select training and testing data (you can choose to split your data in a different way if you wish)
-trainingData = trial(ix(1:10),:);
-validData = trial(ix(11:15),:);
+trainingData = trial(ix(1:70),:);
+testData = trial(ix(71:end),:);
 
-[X,Y,mean_X,std_X] = PreProcessing(trainingData);
+[X,Y,X_V,Y_V,Test_X,Test_Y] = PreProcessing(data,'nequal');
 
 X_size = size(X,2); 
 
@@ -45,7 +45,7 @@ for a = 1:length(ep)
         Layers = Layers_(1,b);
         for c = 1:length(Neurons)
             n_f = Neurons(1,c);
-            N_Layer = {[n_f 2],[n_f n_f 2],[n_f n_f n_f 2],[n_f n_f n_f n_f 2]}; %30 50 80 100
+            N_Layer = {[n_f 5],[n_f n_f 5],[n_f n_f n_f 5],[n_f n_f n_f n_f 5]}; %30 50 80 100
             NN = N_Layer{Layers-1};
             for d = 1:length(Regularization_)
                 Regularization = Regularization_(1,d);
@@ -58,7 +58,7 @@ for a = 1:length(ep)
                     
                     [param,W,B,Ad] = initialization(Layers,NN,X_size,Learning_rate,...
                         Regularization,Std_weight,patience,epoch,batchsize); %(Number of layer, Number of neuron per layer)
-                    [Loss,W,B] = training(X,Y,param,W,B,'adam',Ad);
+                    [Loss,accuracy_training,accuracy_val,W,B] = training(X,Y,param,W,B,'adam',Ad);
                     count = count + 1;
                     disp(count)
                     
@@ -68,7 +68,7 @@ for a = 1:length(ep)
                     parameters.Number_of_layer = param.Number_of_layer;
                     parameters.mean_X = mean_X;
                     parameters.std_X = std_X;
-                    RMSE = valid_func(validData, parameters);
+                    RMSE = valid_func(testDatam, modelParameters);
                     
                     LossS{count} = Loss;
                     accuracy_valS{count} = RMSE;
@@ -79,7 +79,41 @@ for a = 1:length(ep)
     end
 end
 
+function RMSE = valid_func(testDatam, modelParameters)
+for tr=1:size(testData,1)
+    display(['Decoding block ',num2str(tr),' out of ',num2str(size(testData,1))]);
+    pause(0.001)
+    for direc=randperm(8) 
+        decodedHandPos = [];
 
+        times=320:20:size(testData(tr,direc).spikes,2);
+        
+        for t=times
+            past_current_trial.trialId = testData(tr,direc).trialId;
+            past_current_trial.spikes = testData(tr,direc).spikes(:,1:t); 
+            past_current_trial.decodedHandPos = decodedHandPos;
+
+            past_current_trial.startHandPos = testData(tr,direc).handPos(1:2,1); 
+            
+            if nargout('positionEstimator') == 3
+                [decodedPosX, decodedPosY, newParameters] = positionEstimator(past_current_trial, modelParameters);
+                modelParameters = newParameters;
+            elseif nargout('positionEstimator') == 2
+                [decodedPosX, decodedPosY] = positionEstimator(past_current_trial, modelParameters);
+            end
+            
+            decodedPos = [decodedPosX; decodedPosY];
+            decodedHandPos = [decodedHandPos decodedPos];
+            
+            meanSqError = meanSqError + norm(testData(tr,direc).handPos(1:2,t) - decodedPos)^2;
+            
+        end
+        n_predictions = n_predictions+length(times);
+    end
+end
+
+RMSE = sqrt(meanSqError/n_predictions);
+end
 %% Hyperparameter optimization results processing
 
 %Search for hyperparameter giving 99% above accuracy 
