@@ -1,4 +1,4 @@
-function [decodedPosX, decodedPosY] = positionEstimator(input, parameters)
+function [decodedPosX, decodedPosY, error] = positionEstimator(input, parameters,y_pred)
 
     % K-nearest
     % num_test = size(parameters.input,1);
@@ -57,15 +57,35 @@ function [decodedPosX, decodedPosY] = positionEstimator(input, parameters)
     %         error = label - ypred;
     %         error = (1-length(error(error ~= 0))/length(label))*100;
     %         disp(error)
-
+    
     %         %confusion matrix %comment this when training
     %         Conf = zeros(5,5);
     %         for L = 1:length(ypred)
     %             Conf(ypred(L),label(L)) = 1 + Conf(ypred(L),label(L));
     %         end
     %         % disp(Conf)
-
+    
     % error = Test_Y - ypred;
     % error = (1-length(error(error ~= 0))/length(Test_Y))*100;
     % disp(error)
+%     w = strcat('w', num2str(N+2));
+%     b = strcat('b', num2str(N+2));
+%     
+%     Z = X * W(w) + B(b); % X = a where a0 is the training set
+%     a_to_be = Z;
+%     a_to_be(a_to_be<=0 ) = 0; %ReLU function
+%     A = a_to_be;
+%     
+%     X = A; %for next iteration
+    
+    
+    w = strcat('w', num2str(N+2));
+    b = strcat('b', num2str(N+2));
+    Z = X * W(w) + B(b);
+    inter = exp(Z);
+    A = inter./sum(inter,2);
+    [p,label] = max(A,[],2);
+    
+    error = label - y_pred;
+    error = (1-length(error(error ~= 0))/length(label))*100;
 end

@@ -14,7 +14,7 @@ function [X,Y,mean_X,std_X] = PreProcessing(train_data)
 %             for trial = 1:size(data,1)
 %                 data_struc = data(trial,mov_dir);
 %                 features = data_struc.spikes;
-%                 targets =  data_struc.handPos;
+%                 targets =  data_struc.handP
 %                 trial_n = trial_n + 1;
 %                 features = features(:,1:end);
 %                 targets = targets(:,1:end);
@@ -34,9 +34,10 @@ function [X,Y,mean_X,std_X] = PreProcessing(train_data)
 %         numDatapnts = size(features_all,1); %Total number of samples used for training/validation/testing
 
 
-[X, Y] = transform_training_data(train_data);
+[X, Y_all] = transform_training_data(train_data);
 
-Y = Y(:,1:2);
+Y = Y_all(:,1:2);
+Y(:,3) = Y_all(:,4); % direction no
 numDatapnts = size(Y,1);
 
 s = RandStream('mt19937ar','Seed',1); %Fix a seed
@@ -55,4 +56,3 @@ std_X = std(X);
 X = X - mean_X;
 X = X./std_X;
 end
-

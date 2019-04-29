@@ -1,11 +1,10 @@
 load('monkeydata_training.mat')
 close all;
-
-n_angle = size(trial,2);
+function raster_plot(trial)
 for n = 1:1
-    neuron_units = size(trial(n,1).spikes,1);
-    t_all = size(trial(n,1).spikes,2);
-    spikes_bin = trial(n,1).spikes;
+    neuron_units = size(trial.spikes,1);
+    t_all = size(trial.spikes,2);
+    spikes_bin = trial.spikes;
     figure(1)
     hold on
     for t = 1:t_all
@@ -27,3 +26,4 @@ ylabel('Neurons units')
 plot([300 300],[1 100],'Color','r','LineWidth',1.5)
 hold on
 plot([t_all-100 t_all-100],[1 100],'Color','r','LineWidth',1.5)
+end

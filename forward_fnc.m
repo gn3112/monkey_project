@@ -27,7 +27,7 @@ for N = 1:(N_l-1)
 end
 
 
-%Last layer, softmax instead of ReLU
+%Last layer, regression no activation func
 z = strcat('z', num2str(N+1)); %z = w*a
 a = strcat('a', num2str(N+1)); %a = f(z)
 w = strcat('w', num2str(N+1));
@@ -41,9 +41,36 @@ A(a) = Z(z);
 %         y_hat = A(a);
 %         tmp = y_hat(sub2ind([length(Y) Neur(:,N_l)],(1:numel(Y))',Y(:))); %find the probability of
 %         %the correct class
+%         W_all = values(W);
+%         W_all = cellfun(@(x)x.^2,W_all,'UniformOutput',false); %square all elements of each weight matrix
+%         W_all = sum(cellfun(@(x) sum(x(:)),W_all)); %sum all elements of each weight matrix
+%         loss = mean((A(a)-Y(:,1:2)).^2,1) + param.reg*0.5*W_all;
 
+% Last layer, softmax for direction
+% z = strcat('z', num2str(N+2)); %z = w*a
+% a = strcat('a', num2str(N+2)); %a = f(z)
+% w = strcat('w', num2str(N+2));
+% b = strcat('b', num2str(N+2));
+% 
+% Z(z) = X * W(w) + B(b); % X = a where a0 is the training set
+% a_to_be = Z(z);
+% a_to_be(a_to_be<=0 ) = 0; %ReLU function
+% A(a) = a_to_be;
+% 
+% X = A(a); %for next iteration
+
+z = strcat('z', num2str(N+2)); %z = w*a
+a = strcat('a', num2str(N+2)); %a = f(z)
+w = strcat('w', num2str(N+2));
+b = strcat('b', num2str(N+2));
+Z(z) = X * W(w) + B(b);
+inter = exp(Z(z));
+A(a) = inter./sum(inter,2);
+y_hat = A(a);
+tmp = y_hat(sub2ind([length(Y) Neur(:,end)],(1:numel(Y(:,end)))',Y(:,end)));
 W_all = values(W);
 W_all = cellfun(@(x)x.^2,W_all,'UniformOutput',false); %square all elements of each weight matrix
-W_all = sum(cellfun(@(x) sum(x(:)),W_all)); %sum all elements of each weight matrix
-loss = mean((A(a)-Y).^2,1) + param.reg*0.5*W_all;
+W_all = sum(cellfun(@(x) sum(x(:)), W_all));
+
+loss = sum(-log(tmp))/length(Y) + param.reg*0.5*W_all;
 end

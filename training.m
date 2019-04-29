@@ -43,7 +43,7 @@ for it = 1:iteration
         break
     end
     
-    for ng = 1:Number_of_layer %Update the weights and biases for each layer
+    for ng = 1:Number_of_layer+1 %Update the weights and biases for each layer
         w = strcat('w', num2str(ng));
         b = strcat('b', num2str(ng));
         dw = strcat('d',w);

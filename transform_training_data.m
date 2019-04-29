@@ -5,7 +5,7 @@
 function [X, Y]  = transform_training_data(trainingData)
 
     X = [];
-    y = [];
+    Y = [];
 
     % Binned data, same structure as trial but now in 20 ms bins
     binned_X = {};
@@ -61,7 +61,8 @@ function [X, Y]  = transform_training_data(trainingData)
             % Iterating over every 20ms period:
             for period = 1:size(binned_X{trials, movement}, 2) - 16
                    X(i,:) = reshape(transpose(cell2mat(binned_X{trials, movement}(period:15+period))),[1,98*16]);
-                   Y(i,:) = transpose(cell2mat(binned_dY{trials, movement}(:,15+period)));
+                   Y(i,1:3) = transpose(cell2mat(binned_dY{trials, movement}(:,15+period)));
+                   Y(i,4) = movement;
                    i = i+1;               
             end 
         end

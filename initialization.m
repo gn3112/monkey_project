@@ -1,5 +1,5 @@
 function [param,W,B,Ad] = initialization(Number_of_layer,Neuron_layer,X_size,Learning_rate,...
-    Regularization,Std_weight,patience,epoch,batchsize)
+    Regularization,Std_weight,patience,epoch,batchsize,lambda)
 %Hyperparameters are chosen in this function and the memory is allocated
 %for the weights,bias and adam parameters matrices.  containers.Map is used
 %to store weights,biases and adam parameters. They can be accessed with a
@@ -16,13 +16,15 @@ param.Number_of_layer = Number_of_layer;
 param.Neuron_layer = Neuron_layer;
 param.beta1 = 0.9; %Fixed hyperp
 param.beta2 = 0.999; %Fixed hyperp
+param.lambda_r = lambda(:,1);
+param.lambda_c = lambda(:,2);
 
 Ad = containers.Map('UniformValues',false);
 Row_w = X_size;
 W = containers.Map('UniformValues',false);
 B = containers.Map('UniformValues',false);
 
-for N = 1:Number_of_layer
+for N = 1:Number_of_layer+1
     
     w = strcat('w', num2str(N));
     b = strcat('b', num2str(N));
@@ -40,5 +42,16 @@ for N = 1:Number_of_layer
     B(b) = zeros(1,Neuron_layer(N));
     
     Row_w = Neuron_layer(:,N) ;
+    
+    if N == Number_of_layer+2
+        W(w) = std * randn(Neuron_layer(:,end-3),Neuron_layer(:,end-1));
+        B(b) = zeros(1,Neuron_layer(:,end-1));
+    elseif N == Number_of_layer+1
+        W(w) = std * randn(Neuron_layer(:,end-2),8);
+        B(b) = zeros(1,8);
+    end
 end
+
+
+
 end

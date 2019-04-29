@@ -29,7 +29,6 @@ grid
 % Train Model
 modelParameters = positionEstimatorTraining(trainingData);
 accuracy = 0;
-prevX = 0;
 count = 0;
 accuracy_direc = zeros(1,8);
 meanSqError_direc = zeros(1,8);
@@ -63,8 +62,7 @@ for tr=1:size(testData,1)
             meanSqError_direc(1,direc) = meanSqError_direc(1,direc) + norm(testData(tr,direc).handPos(1:2,t) - decodedPos)^2;
             if tr==1 && direc == 2
                disp('something')
-               X(1,(t-300)/20) = prevX - decodedPosX;
-               prevX = X(1,(t-300)/20);
+               X(1,t/20) = decodedPosX;
                time_x = times;
                trial_x = testData(1,1);
             end
